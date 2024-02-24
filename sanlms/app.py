@@ -1,0 +1,184 @@
+# -*- coding: utf-8 -*-
+"""
+  app.py
+  Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
+  Created: 24.02.2024, 10:04:19
+  
+  Purpose: 
+"""
+
+from inspect import currentframe
+from typing import Optional, Any
+
+from jsktoolbox.attribtool import NoDynamicAttributes, ReadOnlyClass
+from jsktoolbox.configtool.main import Config as ConfigTool
+from jsktoolbox.raisetool import Raise
+from jsktoolbox.libs.system import PathChecker
+from jsktoolbox.libs.base_data import BData
+from jsktoolbox.stringtool.crypto import SimpleCrypto
+
+
+class _Keys(object, metaclass=ReadOnlyClass):
+    """Keys definition container class."""
+
+    SALT: str = "salt"
+    DB_HOST: str = "db_host"
+    DB_PORT: str = "db_port"
+    DB_DATABASE: str = "db_database"
+    DB_LOGIN: str = "db_login"
+    DB_PASSWORD: str = "db_password"
+
+
+class _ModuleConfig(BData):
+    """Base class for module config classes."""
+
+    class Keys(object, metaclass=ReadOnlyClass):
+        """Keys definition container class."""
+
+        SECTION: str = "__section_name__"
+        CFH: str = "__config_handler__"
+
+    def __init__(self, cfh: ConfigTool, section: Optional[str]) -> None:
+        """Constructor."""
+        self.__cf__ = cfh
+        self._section = section
+
+    def _get(self, varname: str) -> Any:
+        """Get variable from config."""
+        if self.__cf__ and self._section:
+            return self.__cf__.get(self._section, varname)
+        return None
+
+    @property
+    def _section(self) -> Optional[str]:
+        """Return section name."""
+        if self.Keys.SECTION not in self._data:
+            self._data[self.Keys.SECTION] = None
+        return self._data[self.Keys.SECTION]
+
+    @_section.setter
+    def _section(self, section_name: Optional[str]) -> None:
+        """Set section name."""
+        if section_name is None:
+            self._data[self.Keys.SECTION] = None
+        self._data[self.Keys.SECTION] = str(section_name).lower()
+
+    @property
+    def __cf__(self) -> Optional[ConfigTool]:
+        """Return config handler object."""
+        if self.Keys.CFH not in self._data:
+            self._data[self.Keys.CFH] = None
+        return self._data[self.Keys.CFH]
+
+    @__cf__.setter
+    def __cf__(self, config_handler: Optional[ConfigTool]) -> None:
+        """Set config handler."""
+        if config_handler is not None and not isinstance(config_handler, ConfigTool):
+            raise Raise.error(
+                f"Expected ConfigTool type, received'{type(config_handler)}'.",
+                TypeError,
+                self._c_name,
+                currentframe(),
+            )
+        self._data[self.Keys.CFH] = config_handler
+
+
+class SanConfig(NoDynamicAttributes):
+    """docstring for SanConfig."""
+
+    __main_section__: str = "sanlms"
+    __file_name__: str = "/etc/sanlms.conf"
+    __cf__: Optional[ConfigTool] = None
+    __m_conf__: Optional[_ModuleConfig] = None
+
+    def __init__(self, arg) -> None:
+        """Constructor."""
+
+    def __init_config_file(self) -> bool:
+        self.__cf__ = ConfigTool(self.__file_name__, self.__main_section__)
+        self.__m_conf__ = _ModuleConfig(self.__cf__, self.__main_section__)
+        if not self.__cf__.file_exists:
+            if not self.__create_config_file():
+                return False
+
+        return False
+
+    def __create_config_file(self) -> bool:
+        """Try to create config file."""
+        if self.__cf__ is None:
+            return False
+        # set header file
+        self.__cf__.set(
+            self.__main_section__, desc=f"{self.__main_section__} configuration file"
+        )
+        # add salt variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.SALT,
+            value=SimpleCrypto.salt_generator(6),
+            desc="[int] salt for passwords encode/decode",
+        )
+        # add db_host variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.DB_HOST,
+            desc="[str] IPv4 address for mysql database.",
+        )
+        # add db_port variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.DB_PORT,
+            value=3306,
+            desc="[int] port number for mysql database.",
+        )
+        # add db_database variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.DB_DATABASE,
+            value="",
+            desc="[str] LMS database name.",
+        )
+        # add db_login variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.DB_LOGIN,
+            value="",
+            desc="[str] LMS database login name.",
+        )
+        # add db_password variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.DB_PASSWORD,
+            value="",
+            desc="[str] LMS database encrypted password.",
+        )
+
+        test: bool = False
+        try:
+            test = self.save()
+        except Exception as ex:
+            # self.logs.message_critical = (
+            #     f"cannot create config file: '{self.config_file}'"
+            # )
+            # if self.debug:
+            #     self.logs.message_debug = f"{ex}"
+            print(f"{ex}")
+
+        return test
+
+    def save(self) -> bool:
+        """Try to save config file."""
+        if self.__cf__:
+            if self.__cf__.save():
+                # if self.debug:
+                #     self.logs.message_debug = "config file saved successful"
+                return True
+            else:
+                # self.logs.message_warning = (
+                #     f"cannot save config file: '{self.config_file}'"
+                # )
+                print(f"cannot save config file: '{self.__file_name__}'")
+        return False
+
+
+# #[EOF]#######################################################################
