@@ -18,7 +18,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from jsktoolbox.stringtool.crypto import SimpleCrypto
 
-from sanlms.app import SanConfig
+from sanlms.tools import SanConfig
 
 if __name__ == "__main__":
     conf = SanConfig()

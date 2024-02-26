@@ -9,7 +9,7 @@
 
 from unittest import TestCase
 
-from sanlms.app import SanConfig
+from sanlms.tools import SanConfig
 
 
 class TestSanConfig(TestCase):
