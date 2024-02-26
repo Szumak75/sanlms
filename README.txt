@@ -29,3 +29,6 @@ https://pythonhow.com/python-tutorial/flask/web-development-with-python-and-flas
 
 [WTForms] & [flask-wtf]
 
+[crypt]
+
+crypt.crypt('mojehaslo', password) == password

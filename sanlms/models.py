@@ -9,7 +9,10 @@
 
 from typing import List, Any
 
+from crypt import crypt
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import Mapped, mapped_column, Query
 from sqlalchemy.dialects.mysql import (
     BIGINT,
     BINARY,
@@ -19,7 +22,6 @@ from sqlalchemy.dialects.mysql import (
     CHAR,
     DATE,
     DATETIME,
-    DECIMAL,
     DECIMAL,
     DOUBLE,
     ENUM,
@@ -46,40 +48,72 @@ from sqlalchemy.dialects.mysql import (
     VARCHAR,
     YEAR,
 )
+
 from sanlms.routes import db
 
 
 class User(db.Model):
-    tablename: str = "__users__"
+    __tablename__: str = "users"
 
     # Table schema
-    id = db.Column(INTEGER(11), primary_key=True, nullable=False)
-    login = db.Column(VARCHAR(32), nullable=False, default="")
-    firstname = db.Column(VARCHAR(64), nullable=False, default="")
-    lastname = db.Column(VARCHAR(64), nullable=False, default="")
-    email = db.Column(VARCHAR(255), nullable=False, default="")
-    phone = db.Column(VARCHAR(32), nullable=False, default="")
-    position = db.Column(VARCHAR(255), nullable=False, default="")
-    rights = db.Column(TEXT(), nullable=False)
-    hosts = db.Column(VARCHAR(255), nullable=False, default="")
-    passwd = db.Column(VARCHAR(255), nullable=False, default="")
-    ntype = db.Column(SMALLINT(6), default=None)
-    lastlogindate = db.Column(INTEGER(11), nullable=False, default=0)
-    lastloginip = db.Column(VARCHAR(16), nullable=False, default="")
-    failedlogindate = db.Column(INTEGER(11), nullable=False, default=0)
-    failedloginip = db.Column(VARCHAR(16), nullable=False, default="")
-    deleted = db.Column(TINYINT(1), nullable=False, default=0)
-    passwdexpiration = db.Column(INTEGER(11), nullable=False, default=0)
-    passwdlastchange = db.Column(INTEGER(11), nullable=False, default=0)
-    access = db.Column(TINYINT(1), nullable=False, default=1)
-    accessfrom = db.Column(INTEGER(11), nullable=False, default=0)
-    accessto = db.Column(INTEGER(11), nullable=False, default=0)
-    settings = db.Column(MEDIUMTEXT(), nullable=False)
-    persistentsettings = db.Column(MEDIUMTEXT(), nullable=False)
+
+    id: Mapped[int] = mapped_column(
+        INTEGER(11), primary_key=True, nullable=False, autoincrement=True
+    )
+    login: Mapped[str] = mapped_column(VARCHAR(32), nullable=False, default="")
+    firstname: Mapped[str] = mapped_column(VARCHAR(64), nullable=False, default="")
+    lastname: Mapped[str] = mapped_column(VARCHAR(64), nullable=False, default="")
+    email: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, default="")
+    phone: Mapped[str] = mapped_column(VARCHAR(32), nullable=False, default="")
+    position: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, default="")
+    rights: Mapped[str] = mapped_column(TEXT(), nullable=False)
+    hosts: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, default="")
+    passwd: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, default="")
+    ntype: Mapped[int] = mapped_column(SMALLINT(6), default=None)
+    lastlogindate: Mapped[int] = mapped_column(INTEGER(11), nullable=False, default=0)
+    lastloginip: Mapped[str] = mapped_column(VARCHAR(16), nullable=False, default="")
+    failedlogindate: Mapped[int] = mapped_column(INTEGER(11), nullable=False, default=0)
+    failedloginip: Mapped[str] = mapped_column(VARCHAR(16), nullable=False, default="")
+    deleted: Mapped[int] = mapped_column(TINYINT(1), nullable=False, default=0)
+    passwdexpiration: Mapped[int] = mapped_column(
+        INTEGER(11), nullable=False, default=0
+    )
+    passwdlastchange: Mapped[int] = mapped_column(
+        INTEGER(11), nullable=False, default=0
+    )
+    access: Mapped[int] = mapped_column(TINYINT(1), nullable=False, default=1)
+    accessfrom: Mapped[int] = mapped_column(INTEGER(11), nullable=False, default=0)
+    accessto: Mapped[int] = mapped_column(INTEGER(11), nullable=False, default=0)
+    settings: Mapped[str] = mapped_column(MEDIUMTEXT(), nullable=False)
+    persistentsettings: Mapped[str] = mapped_column(MEDIUMTEXT(), nullable=False)
 
     # Instance methods
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(id:{self.id}, login:{self.login})"
+        return (
+            f"{self.__class__.__name__}(id='{self.id}', "
+            f"login='{self.login}', "
+            f"firstname='{self.firstname}', "
+            f"lastname='{self.lastname}', "
+            f"email='{self.email}', "
+            f"phone='{self.phone}', "
+            f"position='{self.position}', "
+            f"rights='{self.rights}', "
+            f"hosts='{self.hosts}', "
+            f"passwd='{self.passwd}', "
+            f"ntype='{self.ntype}', "
+            f"lastlogindate='{self.lastlogindate}', "
+            f"lastloginip='{self.lastloginip}', "
+            f"failedlogindate='{self.failedlogindate}', "
+            f"failedloginip='{self.failedloginip}', "
+            f"deleted='{self.deleted}', "
+            f"passwdexpiration='{self.passwdexpiration}', "
+            f"passwdlastchange='{self.passwdlastchange}', "
+            f"access='{self.access}', "
+            f"accessfrom='{self.accessfrom}', "
+            f"accessto='{self.accessto}', "
+            f"settings='{self.settings}', "
+            f"persistentsettings='{self.persistentsettings}' ) "
+        )
 
     # Class methods
     @classmethod
@@ -87,12 +121,16 @@ class User(db.Model):
         return cls.query.all()
 
     @classmethod
-    def find_by_login(cls, login: str):
+    def find_by_login(cls, login: str) -> Query:
         return cls.query.filter(cls.login == login)
 
     @classmethod
-    def check_login(cls, login: str, password: str):
-        pass
+    def check_login(cls, login: str, password: str) -> bool:
+        out = cls.query.filter(cls.login == login).first()
+        if out:
+            passwd = out.passwd
+            return passwd == crypt(password, passwd)
+        return False
 
 
 # #[EOF]#######################################################################

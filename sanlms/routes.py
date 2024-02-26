@@ -12,6 +12,8 @@ from functools import wraps
 from pathlib import Path
 from typing import Optional
 
+from jsktoolbox.stringtool.crypto import SimpleCrypto
+
 from flask import (
     Flask,
     render_template,
@@ -39,11 +41,12 @@ USERNAME: str = conf.db_login if conf.db_login else ""
 PASSWORD: str = conf.db_password if conf.db_password else ""
 HOST: str = str(conf.db_host) if conf.db_host else ""
 PORT: int = conf.db_port if conf.db_port else 3306
+SALT: int = conf.salt if conf.salt else 0
 
 url = URL(
     "mysql+pymysql",
     username=USERNAME,
-    password=PASSWORD,
+    password=SimpleCrypto.multiple_decrypt(SALT, PASSWORD),
     host=HOST,
     database=DATABASE,
     port=PORT,
@@ -51,6 +54,7 @@ url = URL(
 )
 
 SQLALCHEMY_DATABASE_URI = url
+SQLALCHEMY_ECHO = True
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Create and initialize a new Flask app
@@ -67,12 +71,17 @@ if not conf.errors:
 
     @app.route("/hello")
     def hello():
+        # out = ""
+        # for item in models.User.all():
+        #     out += str(item) + "<br>"
+        # return out
         return "Hello, World!"
 
 else:
 
     @app.route("/")
     def index():
+
         return "Internal error."
 
 
