@@ -16,14 +16,14 @@ from typing import Pattern, Optional, Any, List, Dict, Match
 from jsktoolbox.attribtool import NoDynamicAttributes
 
 
-class BzwbkMt940(NoDynamicAttributes):
+class BzWbkMt940(NoDynamicAttributes):
     """Parser for MT940 files (BZWBK)"""
 
     __re61: Pattern[str] = None  # type: ignore
     __re8620: Pattern[str] = None  # type: ignore
     __re8631: Pattern[str] = None  # type: ignore
     __re8632: Pattern[str] = None  # type: ignore
-    __db: List[Any] = []
+    __db: List[Any] = None  # type: ignore
     __data = None  # type: ignore
 
     def __init__(self, data=None) -> None:
@@ -32,17 +32,16 @@ class BzwbkMt940(NoDynamicAttributes):
         self.__re8631 = re.compile("")
         self.__re8632 = re.compile("")
 
+    def parse(self, data) -> None:
         if data is not None:
             self.__data = data
-
-    def parse(self, data=None) -> None:
-        if data is not None:
-            self.__data = data
+        if self.__data is None:
+            return None
         lines = self.__data.split("\r\n")
         # print lines
         ind = 0
         trans = -1
-        self.__db: List[Any] = []
+        self.__db = []
         _buffer: Dict[Any, Any] = {}
 
         for l_ind, line in enumerate(lines):
@@ -70,9 +69,9 @@ class BzwbkMt940(NoDynamicAttributes):
                 """6!n[4!n]2a[1!a]15d4!c16x[//16x[34x]]  - start balance"""
                 # print("BUFFER: {}".format(_buffer))
                 if _buffer:
-                    out: Optional[Match[str]] = self.__re8620.match(_buffer["title"])
-                    if out is not None:
-                        (_buffer["title"], _tein) = out.groups()
+                    tmp: Optional[Match[str]] = self.__re8620.match(_buffer["title"])
+                    if tmp is not None:
+                        (_buffer["title"], _tein) = tmp.groups()
                         if "ein" not in _buffer:
                             _buffer["ein"] = _tein
                     _buffer["acc_id"] = _buffer["ein"][-4:]
@@ -84,7 +83,7 @@ class BzwbkMt940(NoDynamicAttributes):
                         + _buffer["date"][:2]
                     )
                     h = hashlib.new("md5")
-                    h.update(str(_buffer))  # type: ignore
+                    h.update(str(_buffer).encode())
                     _buffer["hash"] = h.hexdigest()
                     self.__db[ind]["trans"].append(_buffer)
                     _buffer = {}
@@ -92,15 +91,17 @@ class BzwbkMt940(NoDynamicAttributes):
                 continue
             if line.startswith(":61:"):
                 """6!n[4!n]2a[1!a]15d4!c16x[//16x[34x]]  - start balance"""
-                (date, side, curr, value) = self.__re61.match(line).groups()
-                _buffer.update(
-                    {
-                        "date": date,
-                        "side": side,
-                        "curr": curr,
-                        "value": value,
-                    }
-                )
+                tmp: Optional[Match[str]] = self.__re61.match(line)
+                if tmp is not None:
+                    (date, side, curr, value) = tmp.groups()
+                    _buffer.update(
+                        {
+                            "date": date,
+                            "side": side,
+                            "curr": curr,
+                            "value": value,
+                        }
+                    )
                 continue
             if line.startswith(":86:>20"):
                 _buffer.update({"title": line[7:]})

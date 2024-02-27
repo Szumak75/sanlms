@@ -42,7 +42,7 @@ from sqlalchemy.util import immutabledict
 from logging.config import dictConfig
 
 from sanlms.tools import SanConfig
-from sanlms.parser import BzwbkMt940
+from sanlms.parser import BzWbkMt940
 
 basedir: Path = Path(__file__).resolve().parent
 
@@ -153,7 +153,14 @@ if not conf.errors:
         if data_form.validate_on_submit():
             app.logger.info("data form validated successfully")
             uploaded_file = data_form.file.data
-            # file_name = secure_filename(uploaded_file.filename)
+            # tmp = uploaded_file.read()
+            # app.logger.info(f"UF: {tmp}")
+            # if tmp is not None:
+            #     mt940 = BzWbkMt940(tmp.decode())
+            #     mt940.parse()
+            #     app.logger.info(f"{mt940.db}")
+
+            file_name = secure_filename(uploaded_file.filename)
             with tempfile.NamedTemporaryFile(delete=False) as fp:
                 fp.close()
                 uploaded_file.save(fp.name)
@@ -161,10 +168,11 @@ if not conf.errors:
                 # open file
                 with open(fp.name, mode="rb") as file:
                     app.logger.info(f"File name to open: {fp.name}")
-                    app.logger.info(f"{file.read()}")
+                    tmp: bytes = file.read()
+                    app.logger.info(f"{tmp.decode()}")
                     # process MT940
-                    mt940 = BzwbkMt940(file.read())
-                    mt940.parse()
+                    mt940 = BzWbkMt940()
+                    mt940.parse(tmp.decode())
                     app.logger.info(f"{mt940.db}")
 
                 # clean up
