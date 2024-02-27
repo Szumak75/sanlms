@@ -27,8 +27,8 @@ class BzWbkMt940(NoDynamicAttributes):
     __data = None  # type: ignore
 
     def __init__(self, data=None) -> None:
-        self.__re61 = re.compile(":61:(\d{6})(\D)(\D)([0-9,]*).*")
-        self.__re8620 = re.compile("(.*)EIN(.*)")
+        self.__re61 = re.compile(r":61:(\d{6})(\D)(\D)([0-9,]*).*")
+        self.__re8620 = re.compile(r"(.*)EIN(.*)")
         self.__re8631 = re.compile("")
         self.__re8632 = re.compile("")
 
