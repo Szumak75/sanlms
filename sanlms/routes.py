@@ -42,7 +42,7 @@ from sqlalchemy.util import immutabledict
 from logging.config import dictConfig
 
 from sanlms.tools import SanConfig
-
+from sanlms.parser import BzwbkMt940
 
 basedir: Path = Path(__file__).resolve().parent
 
@@ -163,6 +163,13 @@ if not conf.errors:
                     app.logger.info(f"File name to open: {fp.name}")
                     app.logger.info(f"{file.read()}")
                     # process MT940
+                    mt940 = BzwbkMt940(file.read())
+                    mt940.parse()
+                    app.logger.info(f"{mt940.db}")
+
+                # clean up
+                if os.path.exists(fp.name):
+                    os.remove(fp.name)
         else:
             app.logger.info("data form validation error")
 
