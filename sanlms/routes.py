@@ -7,7 +7,8 @@
   Purpose: 
 """
 
-import os
+import os, secrets
+
 from functools import wraps
 from pathlib import Path
 from typing import Optional
@@ -25,9 +26,14 @@ from flask import (
     abort,
     jsonify,
 )
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField
+from wtforms.validators import DataRequired
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import URL
 from sqlalchemy.util import immutabledict
+
 
 from sanlms.tools import SanConfig
 
@@ -42,6 +48,7 @@ PASSWORD: str = conf.db_password if conf.db_password else ""
 HOST: str = str(conf.db_host) if conf.db_host else ""
 PORT: int = conf.db_port if conf.db_port else 3306
 SALT: int = conf.salt if conf.salt else 0
+SECRET_KEY: bytes = secrets.token_bytes()
 
 url = URL(
     "mysql+pymysql",
@@ -65,9 +72,40 @@ app.config.from_object(__name__)
 # init sqlalchemy
 db = SQLAlchemy(app)
 
+
+# Forms
+class LoginForm(FlaskForm):
+
+    login = StringField(
+        label="Login", validators=[DataRequired()], description="User login name."
+    )
+    passwd = PasswordField(
+        label="Hasło", validators=[DataRequired()], description="User password."
+    )
+
+
 if not conf.errors:
 
     from sanlms import models
+
+    @app.route("/")
+    def index():
+        if "username" not in session:
+            return redirect(url_for("login"))
+        return "You are logged in"
+
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        form = LoginForm()
+        if form.validate_on_submit():
+            if (
+                form.login.data
+                and form.passwd.data
+                and models.User.check_login(form.login.data, form.passwd.data)
+            ):
+                session["username"] = form.login.data
+                return redirect("/")
+        return render_template("login.html", form=form)
 
     @app.route("/hello")
     def hello():
@@ -80,7 +118,7 @@ if not conf.errors:
 else:
 
     @app.route("/")
-    def index():
+    def index_ie():
 
         return "Internal error."
 

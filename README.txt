@@ -27,7 +27,11 @@ https://flask-menu.readthedocs.io/en/latest/
 
 https://pythonhow.com/python-tutorial/flask/web-development-with-python-and-flask/
 
-[WTForms] & [flask-wtf]
+[WTForms] & [flask-wtf] & [flask-login]
+
+https://wtforms.readthedocs.io/en/3.1.x/
+https://flask-wtf.readthedocs.io/en/1.2.x/
+https://flask-login.readthedocs.io/en/latest/
 
 [crypt]
 
