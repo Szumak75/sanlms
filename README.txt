@@ -36,3 +36,8 @@ https://flask-login.readthedocs.io/en/latest/
 [crypt]
 
 crypt.crypt('mojehaslo', password) == password
+
+[RUN]
+
+- for debug: FLASK_APP=sanlms/routes.py python3 -m flask run -p 5001
+- for prod: gunicorn sanlms.routes:app

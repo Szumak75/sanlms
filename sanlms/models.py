@@ -235,5 +235,10 @@ class CashImport(db.Model):
             f"sourceid='{self.sourceid}' ) "
         )
 
+    # Class methods
+    @classmethod
+    def all(cls):
+        return cls.query.filter(cls.closed == 0).all()
+
 
 # #[EOF]#######################################################################
