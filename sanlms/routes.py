@@ -11,7 +11,7 @@ import os, secrets
 
 from functools import wraps
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Any
 
 from jsktoolbox.stringtool.crypto import SimpleCrypto
 
@@ -84,6 +84,12 @@ class LoginForm(FlaskForm):
     )
 
 
+class DataForm(FlaskForm):
+
+    menu_items: List[Any] = []
+    data_items: List[Any] = []
+
+
 if not conf.errors:
 
     from sanlms import models
@@ -92,6 +98,8 @@ if not conf.errors:
     def index():
         if "username" not in session:
             return redirect(url_for("login"))
+
+        data = DataForm()
         return "You are logged in"
 
     @app.route("/login", methods=["GET", "POST"])
@@ -106,6 +114,11 @@ if not conf.errors:
                 session["username"] = form.login.data
                 return redirect("/")
         return render_template("login.html", form=form)
+
+    @app.route("/logout")
+    def logout():
+        session.pop("username", None)
+        return redirect(url_for("index"))
 
     @app.route("/hello")
     def hello():
