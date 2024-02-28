@@ -240,5 +240,12 @@ class CashImport(db.Model):
     def all(cls):
         return cls.query.filter(cls.closed == 0).all()
 
+    @classmethod
+    def has_hash(cls, hash: str) -> bool:
+        out = cls.query.filter(cls.hash == hash).first()
+        if out:
+            return True
+        return False
+
 
 # #[EOF]#######################################################################

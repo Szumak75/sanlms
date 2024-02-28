@@ -40,6 +40,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.util import immutabledict
 
 from logging.config import dictConfig
+from sanlms.models import CashImport
 
 from sanlms.tools import SanConfig
 from sanlms.parser import BzWbkMt940
@@ -174,6 +175,22 @@ if not conf.errors:
                     mt940 = BzWbkMt940()
                     mt940.parse(tmp.decode())
                     app.logger.info(f"{mt940.db}")
+                    for section in mt940.db:
+                        count_imp = 0
+                        count_dup = 0
+                        for record in section["trans"]:
+                            if record["side"] != "C":
+                                continue
+                            if not CashImport.has_hash(record["hash"]):
+                                count_imp += 1
+                                # create new CI
+                            else:
+                                count_dup += 1
+                        if count_imp > 0:
+                            pass
+                        if count_dup > 0:
+                            pass
+                    # commit new records to database
 
                 # clean up
                 if os.path.exists(fp.name):
