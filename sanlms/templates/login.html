@@ -1,23 +1,35 @@
-<center>
-    <form method="POST">
-        {{ form.csrf_token }}
-        {{ form.login.label }} {{ form.login(size=20) }}<br>
-        {{ form.passwd.label }} {{ form.passwd(size=20) }}<br>
-        {{ form.submit }}
-    </form>
-</center>
+{% extends "base.html" %}
 
-{% if form.login.errors %}
-    <ul class="errors">
-    {% for error in form.login.errors %}
-        <li>{{ error }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
-{% if form.passwd.errors %}
-    <ul class="errors">
-    {% for error in form.passwd.errors %}
-        <li>{{ error }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
+{% block body_header %}
+Logowanie do systemu.
+{% endblock %}
+
+{% block body_content %}
+    <center>
+        <form method="POST">
+            {{ form.csrf_token }}
+            <table class="login">
+                <tr><td class="login">{{ form.login.label }}</td><td class="login">{{ form.login(size=20) }}</td></tr>
+                <tr><td class="login">{{ form.passwd.label }}</td><td class="login">{{ form.passwd(size=20) }}</td></tr>
+                <tr><td class="login" colspan="2"></td></tr>
+                <tr><td class="login" colspan="2"><center>{{ form.submit }}</center></td></tr>
+            </table>
+        </form>
+    </center>
+
+    {% if form.login.errors %}
+        <ul class="errors">
+        {% for error in form.login.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% if form.passwd.errors %}
+        <ul class="errors">
+        {% for error in form.passwd.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}

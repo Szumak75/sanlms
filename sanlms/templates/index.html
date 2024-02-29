@@ -1,24 +1,31 @@
-<center>
-    <form method="POST" enctype="multipart/form-data">
-        {{ form.csrf_token }}
-        {{ form.file.label }} {{ form.file(size=60) }}<br>
-        {{ form.submit }}
-    </form>
-</center>
+{% extends "base.html" %}
 
-{% if form.cash_import %}
-    <table>
-        <tr><th>Data</th><th>Kwota</th><th>Klient</th><th>Opis</th></tr>
-    {% for item in form.cash_import %}
-        <tr><td>{{ item.date }}</td><td>{{ item.value }}</td><td>{{ item.customer }}</td><td>{{ item.desc }}</td></tr>
-    {% endfor %}
-    </table>
-{% endif %}
+{% block body_header %}
+Import raportów pobranych z Santander Bank Polska S.A.
+{% endblock %}
 
-{% if form.file.errors %}
-    <ul class="errors">
-    {% for error in form.file.errors %}
-        <li>{{ error }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
+{% block body_content %}
+    <center>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            {{ form.file.label }} {{ form.file(size=60) }} {{ form.submit }}
+        </form>
+    </center>
+
+    {% if form.cash_import %}
+        <table>
+            <tr><th>Data</th><th>Kwota</th><th>Klient</th><th>Opis</th></tr>
+            {% for item in form.cash_import %}
+                <tr><td>{{ item.date }}</td><td>{{ item.value }}</td><td>{{ item.customer }}</td><td>{{ item.desc }}</td></tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if form.file.errors %}
+        <ul class="errors">
+        {% for error in form.file.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

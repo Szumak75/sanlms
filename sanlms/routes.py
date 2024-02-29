@@ -102,10 +102,10 @@ dictConfig(
 class LoginForm(FlaskForm):
 
     login = StringField(
-        label="Login", validators=[DataRequired()], description="User login name."
+        label="Login: ", validators=[DataRequired()], description="User login name."
     )
     passwd = PasswordField(
-        label="Hasło", validators=[DataRequired()], description="User password."
+        label="Hasło: ", validators=[DataRequired()], description="User password."
     )
     submit = SubmitField(label="Zaloguj się")
 
@@ -120,7 +120,7 @@ class DataForm(FlaskForm):
 
     __menu_items: List[Any] = []
     __data_items: List[Any] = []
-    file = FileField(validators=[FileRequired()])
+    file = FileField(label="Plik raportu: ", validators=[FileRequired()])
     submit = SubmitField(label="Prześlij")
 
     @property
@@ -205,7 +205,9 @@ if not conf.errors:
                 app.logger.info("data form validation error")
 
         data_form.cash_import = models.CashImport.all()
-        return render_template("index.html", form=data_form)
+        return render_template(
+            "index.html", form=data_form, login="username" in session
+        )
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -222,7 +224,7 @@ if not conf.errors:
                 if conf.debug or conf.verbose:
                     app.logger.info(f"{form.login.data} logged in successfully")
                 return redirect("/")
-        return render_template("login.html", form=form)
+        return render_template("login.html", form=form, login="username" in session)
 
     @app.route("/logout")
     def logout():
