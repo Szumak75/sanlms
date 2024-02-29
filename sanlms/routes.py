@@ -32,7 +32,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from werkzeug.utils import secure_filename
 
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms.fields import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 
 from flask_sqlalchemy import SQLAlchemy
@@ -167,12 +167,11 @@ if not conf.errors:
                     if conf.debug:
                         app.logger.info(f"File name to open: {fp.name}")
                     tmp: bytes = file.read()
-                    app.logger.info(f"{tmp.decode()}")
                     # process MT940
                     mt940 = BzWbkMt940()
                     mt940.parse(tmp.decode())
-                    # if conf.debug:
-                    #     app.logger.info(f"{mt940.db}")
+                    if conf.debug:
+                        app.logger.info(f"{mt940.db}")
                     for section in mt940.db:
                         count_imp = 0
                         count_dup = 0

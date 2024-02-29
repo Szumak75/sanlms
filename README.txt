@@ -41,3 +41,9 @@ crypt.crypt('mojehaslo', password) == password
 
 - for debug: FLASK_APP=sanlms/routes.py python3 -m flask run -p 5001
 - for prod: gunicorn sanlms.routes:app
+
+[Templates]
+
+https://jinja.palletsprojects.com/en/3.1.x/
+
+https://www.makotemplates.org/
