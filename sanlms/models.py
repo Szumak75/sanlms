@@ -7,7 +7,10 @@
   Purpose: 
 """
 
-from typing import List, Any
+import time
+import datetime
+
+from typing import Dict, List, Any
 
 from crypt import crypt
 
@@ -246,6 +249,24 @@ class CashImport(db.Model):
         if out:
             return True
         return False
+
+    @classmethod
+    def new(cls, data: Dict[Any, Any]):
+        obj = CashImport()
+        obj.date = int(
+            time.mktime(
+                datetime.datetime.strptime(data["date"], "%d-%m-%Y").timetuple()
+            )
+        )
+        obj.value = float(data["value"].replace(",", "."))
+        obj.customer = data["name"]
+        obj.description = data["title"]
+        obj.customerid = int(data["acc_id"])
+        obj.hash = data["hash"]
+        obj.sourceid = 1
+        obj.closed = 0
+
+        return obj
 
 
 # #[EOF]#######################################################################

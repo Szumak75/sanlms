@@ -22,12 +22,14 @@ from jsktoolbox.netaddresstool.ipv4 import Address
 class _Keys(object, metaclass=ReadOnlyClass):
     """Keys definition container class."""
 
-    SALT: str = "salt"
-    DB_HOST: str = "db_host"
-    DB_PORT: str = "db_port"
     DB_DATABASE: str = "db_database"
+    DB_HOST: str = "db_host"
     DB_LOGIN: str = "db_login"
     DB_PASSWORD: str = "db_password"
+    DB_PORT: str = "db_port"
+    DEBUG: str = "debug"
+    SALT: str = "salt"
+    VERBOSE: str = "verbose"
 
 
 class _ModuleConfig(BData):
@@ -163,6 +165,20 @@ class SanConfig(NoDynamicAttributes):
             value=SimpleCrypto.salt_generator(6),
             desc="[int] salt for passwords encode/decode",
         )
+        # add debug variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.DEBUG,
+            value=False,
+            desc="[boolean] debug logging level.",
+        )
+        # add verbose variable
+        self.__cf__.set(
+            self.__main_section__,
+            varname=_Keys.VERBOSE,
+            value=False,
+            desc="[boolean] verbose logging level.",
+        )
         # add db_host variable
         self.__cf__.set(
             self.__main_section__,
@@ -235,6 +251,24 @@ class SanConfig(NoDynamicAttributes):
                 #     f"cannot save config file: '{self.config_file}'"
                 # )
                 print(f"cannot save config file: '{self.__file_name__}'")
+        return False
+
+    @property
+    def debug(self) -> bool:
+        if self.__m_conf__ is None:
+            return True
+        tmp = self.__m_conf__._get(_Keys.DEBUG)
+        if tmp is not None and isinstance(tmp, bool):
+            return tmp
+        return False
+
+    @property
+    def verbose(self) -> bool:
+        if self.__m_conf__ is None:
+            return True
+        tmp = self.__m_conf__._get(_Keys.VERBOSE)
+        if tmp is not None and isinstance(tmp, bool):
+            return tmp
         return False
 
     @property

@@ -40,7 +40,6 @@ from sqlalchemy.engine import URL
 from sqlalchemy.util import immutabledict
 
 from logging.config import dictConfig
-from sanlms.models import CashImport
 
 from sanlms.tools import SanConfig
 from sanlms.parser import BzWbkMt940
@@ -152,51 +151,59 @@ if not conf.errors:
 
         data_form = DataForm()
         if data_form.validate_on_submit():
-            app.logger.info("data form validated successfully")
+            if conf.debug:
+                app.logger.info("data form validated successfully")
             uploaded_file = data_form.file.data
-            # tmp = uploaded_file.read()
-            # app.logger.info(f"UF: {tmp}")
-            # if tmp is not None:
-            #     mt940 = BzWbkMt940(tmp.decode())
-            #     mt940.parse()
-            #     app.logger.info(f"{mt940.db}")
 
             file_name = secure_filename(uploaded_file.filename)
             with tempfile.NamedTemporaryFile(delete=False) as fp:
                 fp.close()
                 uploaded_file.save(fp.name)
 
+                has_import = False
+
                 # open file
                 with open(fp.name, mode="rb") as file:
-                    app.logger.info(f"File name to open: {fp.name}")
+                    if conf.debug:
+                        app.logger.info(f"File name to open: {fp.name}")
                     tmp: bytes = file.read()
                     app.logger.info(f"{tmp.decode()}")
                     # process MT940
                     mt940 = BzWbkMt940()
                     mt940.parse(tmp.decode())
-                    app.logger.info(f"{mt940.db}")
+                    if conf.debug:
+                        app.logger.info(f"{mt940.db}")
                     for section in mt940.db:
                         count_imp = 0
                         count_dup = 0
                         for record in section["trans"]:
                             if record["side"] != "C":
                                 continue
-                            if not CashImport.has_hash(record["hash"]):
+                            if not models.CashImport.has_hash(record["hash"]):
                                 count_imp += 1
                                 # create new CI
+                                obj = models.CashImport.new(record)
+                                if conf.debug:
+                                    app.logger.info(f"New import: {obj}")
+                                db.session.add(obj)
                             else:
                                 count_dup += 1
                         if count_imp > 0:
-                            pass
+                            has_import = True
+                            app.logger.info(f"import {count_imp} records")
                         if count_dup > 0:
-                            pass
-                    # commit new records to database
+                            app.logger.info(f"found {count_dup} duplicates")
+
+                # commit new records to database
+                if has_import:
+                    db.session.commit()
 
                 # clean up
                 if os.path.exists(fp.name):
                     os.remove(fp.name)
         else:
-            app.logger.info("data form validation error")
+            if conf.debug:
+                app.logger.info("data form validation error")
 
         data_form.cash_import = models.CashImport.all()
         return render_template("index.html", form=data_form)
@@ -213,7 +220,8 @@ if not conf.errors:
                 and models.User.check_login(form.login.data, form.passwd.data)
             ):
                 session["username"] = form.login.data
-                app.logger.info(f"{form.login.data} logged in successfully")
+                if conf.debug or conf.verbose:
+                    app.logger.info(f"{form.login.data} logged in successfully")
                 return redirect("/")
         return render_template("login.html", form=form)
 
