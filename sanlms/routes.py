@@ -232,10 +232,6 @@ if not conf.errors:
 
     @app.route("/hello")
     def hello():
-        # out = ""
-        # for item in models.User.all():
-        #     out += str(item) + "<br>"
-        # return out
         return "Hello, World!"
 
 else:
