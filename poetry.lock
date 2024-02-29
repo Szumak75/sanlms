@@ -661,16 +661,6 @@ ed25519 = ["PyNaCl (>=1.4.0)"]
 rsa = ["cryptography"]
 
 [[package]]
-name = "pysqlite3"
-version = "0.5.2"
-description = "DB-API 2.0 interface for Sqlite 3.x"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pysqlite3-0.5.2.tar.gz", hash = "sha256:0abc1756e8b39bd51c303e8fac37497ccaccc7b237c89fe3cf47ee8e614c590b"},
-]
-
-[[package]]
 name = "pytest"
 version = "8.0.1"
 description = "pytest: simple powerful testing with Python"
@@ -891,4 +881,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "75a6d335dfa9af61b1438414f25668c9a42cd53f0f701156e45362caa764f8fa"
+content-hash = "c345bc09a72b5b561d9e4a935c571a4389b4f67fbb49eb16c8dd4ffe19890352"
