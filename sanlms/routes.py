@@ -67,7 +67,7 @@ url = URL(
 )
 
 SQLALCHEMY_DATABASE_URI = url
-SQLALCHEMY_ECHO = True
+SQLALCHEMY_ECHO = conf.debug
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Create and initialize a new Flask app
@@ -171,8 +171,8 @@ if not conf.errors:
                     # process MT940
                     mt940 = BzWbkMt940()
                     mt940.parse(tmp.decode())
-                    if conf.debug:
-                        app.logger.info(f"{mt940.db}")
+                    # if conf.debug:
+                    #     app.logger.info(f"{mt940.db}")
                     for section in mt940.db:
                         count_imp = 0
                         count_dup = 0
