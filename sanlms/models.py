@@ -15,6 +15,7 @@ from typing import Dict, List, Any
 from crypt import crypt
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func, text
 from sqlalchemy.orm import Mapped, mapped_column, Query
 from sqlalchemy.dialects.mysql import (
     BIGINT,
@@ -51,6 +52,8 @@ from sqlalchemy.dialects.mysql import (
     VARCHAR,
     YEAR,
 )
+
+from jsktoolbox.datetool import DateTime
 
 from sanlms.routes import db
 
@@ -242,6 +245,7 @@ class CashImport(db.Model):
     @classmethod
     def all(cls):
         return cls.query.filter(cls.closed == 0).all()
+        # return cls.query.order_by(cls.date).limit(100).all()
 
     @classmethod
     def has_hash(cls, hash: str) -> bool:
@@ -267,6 +271,53 @@ class CashImport(db.Model):
         obj.closed = 0
 
         return obj
+
+
+class Cash(db.Model):
+    __tablename__: str = "cash"
+
+    # Table schema
+    id: Mapped[int] = mapped_column(
+        INTEGER(11), primary_key=True, nullable=False, autoincrement=True
+    )
+    time: Mapped[int] = mapped_column(INTEGER(11), nullable=False, default=0)
+    type: Mapped[int] = mapped_column(SMALLINT(6), nullable=False, default=0)
+    userid: Mapped[int] = mapped_column(INTEGER(11), default=None)
+    value: Mapped[float] = mapped_column(DECIMAL(9, 2), nullable=False, default=0.00)
+    taxid: Mapped[int] = mapped_column(INTEGER(11), default=None)
+    customerid: Mapped[int] = mapped_column(INTEGER(11), default=None)
+    comment: Mapped[str] = mapped_column(TEXT(), nullable=False)
+    docid: Mapped[int] = mapped_column(INTEGER(11), default=None)
+    itemid: Mapped[int] = mapped_column(SMALLINT(6), nullable=False, default=0)
+    importid: Mapped[int] = mapped_column(INTEGER(11), default=None)
+    sourceid: Mapped[int] = mapped_column(INTEGER(11), default=None)
+
+    # Instance methods
+    def __repr__(self) -> str:
+        return (
+            f"Cash(id='{self.id}', "
+            f"time='{self.time}', "
+            f"type='{self.type}', "
+            f"userid='{self.userid}', "
+            f"value='{self.value}', "
+            f"taxid='{self.taxid}', "
+            f"customerid='{self.customerid}', "
+            f"comment='{self.comment}', "
+            f"docid='{self.docid}', "
+            f"itemid='{self.itemid}', "
+            f"importid='{self.importid}', "
+            f"sourceid='{self.sourceid}' ) "
+        )
+
+    def str_date_time(self) -> str:
+        return str(DateTime.datetime_from_timestamp(self.time))
+
+    # Class Methods
+    @classmethod
+    def null_time(cls):
+        return cls.query.filter(
+            text("TIME_TO_SEC(FROM_UNIXTIME(time)) = TIME_TO_SEC('00:00:00')")
+        ).all()
 
 
 # #[EOF]#######################################################################

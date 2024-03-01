@@ -6,9 +6,9 @@ H3		            { font-size: 10pt; font-family: Tahoma, Verdana, Arial, Helvetic
 TABLE		        { border-collapse: collapse; border-color: #000000 }
 TABLE.login	    { border-collapse: separate; border: solid 1px black; background-color: #dfd5bd; }
 TD.login		    { font-size: 8pt; font-family: Tahoma, Verdana, Arial, Helvetica; vertical-align: middle; border: 1px solid #dfd5bd; }
-TD		            { font-size: 8pt; font-family: Tahoma, Verdana, Arial, Helvetica; vertical-align: middle; border: 1px solid #ebe4d6; }
+TD		            { font-size: 7pt; font-family: Tahoma, Verdana, Arial, Helvetica; vertical-align: middle; border: 1px solid #ebe4d6; }
 th                  { background-color: black; color: white; }
-th, td              { text-align: left; padding: 2px; }
+th, td              { text-align: left; padding: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 tr:nth-child(even)  { background-color: #dfd5bd; }
 INPUT[type='text'],
 INPUT[type='email'],
@@ -18,7 +18,8 @@ INPUT[type='tel'],
 INPUT[type='password'],
 INPUT[type='submit'],
 INPUT[type='button'],
-INPUT[type='file']  { border: solid 1px rgb(0, 0, 0); background-color: #ebe4d6; }	
+INPUT[type='file']  { border: solid 1px rgb(0, 0, 0); background-color: #ebe4d6; font-size: 8pt; font-family: Tahoma, Verdana, Arial, Helvetica; }	
+INPUT[type='submit'] { background-color: #cebd9b; font-weight: bold; }
 A		            { text-decoration: none; vertical-align: baseline; }
 A:link		        { color: #800000; }
 A:active	        { color: #336600; }
@@ -29,6 +30,7 @@ A:hover		        { text-decoration: underline; color: #336600; }
 #right              { text-align: right; }
 #center             { text-align: center; }
 #justify            { text-align: justify; }
+#flash              { color: red; text-align: center; }
 .submit             { text-align: right; font-weight: bold; font-family: Tahoma, Verdana, Arial, Helvetica; margin-top: 1%; margin-right: 5px;}
 .submit A           { color: rgb(0, 0, 0); background-color: #cebd9b; padding: 5px 11px; border: 1px solid black; }
 .submit A:hover     { border: 1px solid #fff; }  

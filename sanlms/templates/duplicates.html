@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block body_header %}
+Lista prawdopodobnych duplikatów dla operacji finansowych.
+{% endblock %}
+
+{% block body_content %}
+    {% if data %}
+        <center>
+            <table style="width:90%">
+                <tr><th>Klient ID</th><th>Data</th><th>Kwota</th><th>Opis</th></tr>
+                {% for item in data %}
+                    <tr><td>{{ item.customerid }}</td><td>{{ item.str_date_time() }}</td><td>{{ item.value }}</td><td>{{ item.comment }}</td></tr>
+                {% endfor %}
+            </table>
+        </center>
+    {% endif %}
+
+{% endblock %}

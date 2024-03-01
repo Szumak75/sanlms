@@ -38,6 +38,7 @@ from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import URL
 from sqlalchemy.util import immutabledict
+from sqlalchemy import func, text
 
 from logging.config import dictConfig
 
@@ -144,8 +145,14 @@ if not conf.errors:
 
     from sanlms import models
 
-    @app.route("/", methods=["GET", "POST"])
+    @app.route("/")
     def index():
+        if "username" not in session:
+            return redirect(url_for("login"))
+        return render_template("index.html", login="username" in session)
+
+    @app.route("/imports", methods=["GET", "POST"])
+    def imports():
         if "username" not in session:
             return redirect(url_for("login"))
 
@@ -191,6 +198,16 @@ if not conf.errors:
                             has_import = True
                             app.logger.info(f"import {count_imp} records")
                         if count_dup > 0:
+                            desc = ""
+                            if count_dup == 1:
+                                desc = "zaimportowaną transakcję"
+                            elif count_dup < 5:
+                                desc = "zaimportowane transakcje"
+                            else:
+                                desc = "zaimportowanych transakcji"
+                            flash(
+                                f"Przesłany plik zawiera {count_dup} wcześniej {desc}."
+                            )
                             app.logger.info(f"found {count_dup} duplicates")
 
                 # commit new records to database
@@ -206,7 +223,7 @@ if not conf.errors:
 
         data_form.cash_import = models.CashImport.all()
         return render_template(
-            "index.html", form=data_form, login="username" in session
+            "imports.html", form=data_form, login="username" in session
         )
 
     @app.route("/login", methods=["GET", "POST"])
@@ -230,6 +247,44 @@ if not conf.errors:
     def logout():
         session.pop("username", None)
         return redirect(url_for("index"))
+
+    @app.route("/duplicates")
+    def duplicates():
+        if "username" not in session:
+            return redirect(url_for("login"))
+
+        f_count = func.count(models.Cash.id)
+        rows = (
+            db.session.query(
+                # f_count,
+                # models.Cash.time,
+                # models.Cash.value,
+                # models.Cash.customerid,
+                # models.Cash.comment,
+                models.Cash
+            )
+            .filter(
+                models.Cash.type == 1,
+                text("TIME_TO_SEC(FROM_UNIXTIME(time)) = TIME_TO_SEC('00:00:00')"),
+            )
+            .group_by(
+                models.Cash.time,
+                models.Cash.value,
+                models.Cash.customerid,
+                models.Cash.comment,
+            )
+            .order_by(models.Cash.time)
+            .having(f_count > 1)
+            .all()
+        )
+        # rows = models.Cash.null_time()
+        data = None
+        if rows:
+            data = rows
+
+        return render_template(
+            "duplicates.html", data=data, login="username" in session
+        )
 
     @app.route("/hello")
     def hello():
