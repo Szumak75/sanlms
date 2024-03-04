@@ -196,6 +196,7 @@ if not conf.errors:
                                     app.logger.info(f"New import: {obj}")
                                 db.session.add(obj)
                             else:
+                                app.logger.info(f"RECORD [{count_dup}]: {record}")
                                 count_dup += 1
                     if count_imp > 0:
                         has_import = True
