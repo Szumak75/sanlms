@@ -180,8 +180,8 @@ if not conf.errors:
                     # process MT940
                     mt940 = BzWbkMt940()
                     mt940.parse(tmp.decode())
-                    if conf.debug:
-                        app.logger.info(f"{mt940.db}")
+                    # if conf.debug:
+                    #     app.logger.info(f"{mt940.db}")
                     count_imp = 0
                     count_dup = 0
                     for section in mt940.db:
@@ -193,11 +193,14 @@ if not conf.errors:
                                 # create new CI
                                 obj = models.CashImport.new(record)
                                 if conf.debug:
-                                    app.logger.info(f"New import: {obj}")
+                                    app.logger.info(f"NEW IMPORT [{count_imp}]: {obj}")
                                 db.session.add(obj)
                             else:
-                                app.logger.info(f"RECORD [{count_dup}]: {record}")
                                 count_dup += 1
+                                if conf.debug:
+                                    app.logger.info(
+                                        f"DUPLICATE [{count_dup}]: {record}"
+                                    )
                     if count_imp > 0:
                         has_import = True
                         app.logger.info(f"import {count_imp} records")
