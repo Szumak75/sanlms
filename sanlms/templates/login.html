@@ -19,18 +19,14 @@ Logowanie do systemu.
     <br>
     <br>
     {% if form.login.errors %}
-        <ul class="errors">
         {% for error in form.login.errors %}
-            <li>{{ error }}</li>
+            <div id="flash"><h1>{{ error }}</h1></div>
         {% endfor %}
-        </ul>
     {% endif %}
     {% if form.passwd.errors %}
-        <ul class="errors">
         {% for error in form.passwd.errors %}
-            <li>{{ error }}</li>
+            <div id="flash"><h1>{{ error }}</h1></div>
         {% endfor %}
-        </ul>
     {% endif %}
 
 {% endblock %}

@@ -25,10 +25,8 @@ Import raportów pobranych z Santander Bank Polska S.A.
     {% endif %}
 
     {% if form.file.errors %}
-        <ul class="errors">
         {% for error in form.file.errors %}
-            <li>{{ error }}</li>
+            <div id="flash"><h1>{{ error }}</h1></div>
         {% endfor %}
-        </ul>
     {% endif %}
 {% endblock %}
