@@ -29,7 +29,7 @@ from flask import (
     jsonify,
 )
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from werkzeug.utils import secure_filename
 
 from wtforms.fields import StringField, PasswordField, SubmitField
@@ -121,7 +121,10 @@ class DataForm(FlaskForm):
 
     __menu_items: List[Any] = []
     __data_items: List[Any] = []
-    file = FileField(label="Plik raportu: ", validators=[FileRequired()])
+    file = FileField(
+        label="Plik raportu: ",
+        validators=[FileRequired(), FileAllowed(["txt"], "Tylko pliki tekstowe.")],
+    )
     submit = SubmitField(label="Prześlij")
 
     @property
@@ -197,6 +200,7 @@ if not conf.errors:
                     if count_imp > 0:
                         has_import = True
                         app.logger.info(f"import {count_imp} records")
+                    # TODO: count_dup shows an inflated value
                     if count_dup > 0:
                         desc = ""
                         if count_dup == 1:
