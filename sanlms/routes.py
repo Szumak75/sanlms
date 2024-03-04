@@ -179,9 +179,9 @@ if not conf.errors:
                     mt940.parse(tmp.decode())
                     if conf.debug:
                         app.logger.info(f"{mt940.db}")
+                    count_imp = 0
+                    count_dup = 0
                     for section in mt940.db:
-                        count_imp = 0
-                        count_dup = 0
                         for record in section["trans"]:
                             if record["side"] != "C":
                                 continue
@@ -194,21 +194,19 @@ if not conf.errors:
                                 db.session.add(obj)
                             else:
                                 count_dup += 1
-                        if count_imp > 0:
-                            has_import = True
-                            app.logger.info(f"import {count_imp} records")
-                        if count_dup > 0:
-                            desc = ""
-                            if count_dup == 1:
-                                desc = "zaimportowaną transakcję"
-                            elif count_dup < 5:
-                                desc = "zaimportowane transakcje"
-                            else:
-                                desc = "zaimportowanych transakcji"
-                            flash(
-                                f"Przesłany plik zawiera {count_dup} wcześniej {desc}."
-                            )
-                            app.logger.info(f"found {count_dup} duplicates")
+                    if count_imp > 0:
+                        has_import = True
+                        app.logger.info(f"import {count_imp} records")
+                    if count_dup > 0:
+                        desc = ""
+                        if count_dup == 1:
+                            desc = "zaimportowaną transakcję"
+                        elif count_dup < 5:
+                            desc = "zaimportowane transakcje"
+                        else:
+                            desc = "zaimportowanych transakcji"
+                        flash(f"Przesłany plik zawiera {count_dup} wcześniej {desc}.")
+                        app.logger.info(f"found {count_dup} duplicates")
 
                 # commit new records to database
                 if has_import:
