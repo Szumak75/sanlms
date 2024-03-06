@@ -199,7 +199,7 @@ if not conf.errors:
                             else:
                                 count_dup += 1
                                 dup_details.append(
-                                    f'{count_dup}. <b>ID</b>: {int(record["acc_id"])}, <b>Klient</b>: {record["name"]}, <b>Kwota</b>: {float(record["value"].replace(",", "."))}'
+                                    f'{count_dup}. ID: {int(record["acc_id"])}, Klient: {record["name"]}, Kwota: {float(record["value"].replace(",", "."))}'
                                 )
 
                                 if conf.debug:
