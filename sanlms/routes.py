@@ -220,7 +220,7 @@ if not conf.errors:
                             desc = "zaimportowanych transakcji"
                         flash(f"Przesłany plik zawiera {count_dup} wcześniej {desc}.")
                         for line in dup_details:
-                            flash(line)
+                            flash(line, "table")
                         app.logger.info(f"found {count_dup} duplicates")
 
                 # commit new records to database
