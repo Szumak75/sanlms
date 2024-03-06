@@ -7,13 +7,14 @@
 {% endmacro %}
 
 {% macro show_all_flash_messages() %}
-    {% for message in get_flashed_messages(category_filter=()) %}
+    {% for message in get_flashed_messages(with_categories=True, category_filter=()) %}
         {{ show_flash_message(message) }}
     {% endfor %}
     {% with table = get_flashed_messages(category_filter=['table']) %}
         {% if table %}
             <center>
                 <table>
+                    <tr><th>Lista duplikatów</th></tr>
                     {% for message in table %}
                         {{ show_flash_message_in_table(message) }}
                     {% endfor %}
