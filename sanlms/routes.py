@@ -171,6 +171,7 @@ if not conf.errors:
                 uploaded_file.save(fp.name)
 
                 has_import = False
+                dup_details: List[str] = []
 
                 # open file
                 with open(fp.name, mode="rb") as file:
@@ -197,6 +198,10 @@ if not conf.errors:
                                 db.session.add(obj)
                             else:
                                 count_dup += 1
+                                dup_details.append(
+                                    f'{count_dup}. ID: {int(record["acc_id"])} Klient: {record["name"]}, Kwota: {float(record["value"].replace(",", "."))}'
+                                )
+
                                 if conf.debug:
                                     app.logger.info(
                                         f"DUPLICATE [{count_dup}]: {record}"
@@ -214,6 +219,8 @@ if not conf.errors:
                         else:
                             desc = "zaimportowanych transakcji"
                         flash(f"Przesłany plik zawiera {count_dup} wcześniej {desc}.")
+                        for line in dup_details:
+                            flash(line)
                         app.logger.info(f"found {count_dup} duplicates")
 
                 # commit new records to database
