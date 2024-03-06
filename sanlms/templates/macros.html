@@ -7,10 +7,10 @@
 {% endmacro %}
 
 {% macro show_all_flash_messages() %}
-    {% for message in get_flashed_messages(with_categories=True, category_filter=()) %}
+    {% for message in get_flashed_messages(category_filter=('message')) %}
         {{ show_flash_message(message) }}
     {% endfor %}
-    {% with table = get_flashed_messages(category_filter=['table']) %}
+    {% with table = get_flashed_messages(category_filter=('table')) %}
         {% if table %}
             <center>
                 <table>
