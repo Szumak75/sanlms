@@ -211,7 +211,7 @@ if not conf.errors:
                         app.logger.info(f"import {count_imp} records")
                     # TODO: count_dup shows an inflated value
                     if count_dup > 0:
-                        desc = ""
+                        desc: str = ""
                         if count_dup == 1:
                             desc = "zaimportowaną transakcję"
                         elif count_dup < 5:

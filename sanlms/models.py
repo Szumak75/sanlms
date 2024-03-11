@@ -4,7 +4,7 @@
   Author : Jacek 'Szumak' Kotlarski --<szumak@virthost.pl>
   Created: 25.02.2024, 09:51:47
   
-  Purpose: 
+  Purpose: Database models
 """
 
 import time
@@ -255,7 +255,7 @@ class CashImport(db.Model):
         return False
 
     @classmethod
-    def new(cls, data: Dict[Any, Any]):
+    def new(cls, data: Dict[Any, Any]) -> "CashImport":
         obj = CashImport()
         obj.date = int(
             time.mktime(
