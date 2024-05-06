@@ -74,7 +74,9 @@ class BzWbkMt940(NoDynamicAttributes):
                         (_buffer["title"], _tein) = tmp.groups()
                         if "ein" not in _buffer:
                             _buffer["ein"] = _tein
-                    _buffer["acc_id"] = _buffer["ein"][-4:]
+                    # Update: change for 5 digit in account id 
+                    # _buffer["acc_id"] = _buffer["ein"][-4:]
+                    _buffer["acc_id"] = _buffer["ein"][-5:]
                     _buffer["date"] = (
                         _buffer["date"][4:]
                         + "-"
