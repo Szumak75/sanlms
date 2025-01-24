@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sanlms"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Jacek Kotlarski <szumak@virthost.pl>"]
 readme = "README.md"
@@ -16,8 +16,8 @@ flask-login = "^0.6.3"
 mt-940 = "^4.30.0"
 requests = "^2.31.0"
 gunicorn = "^22.0.0"
-werkzeug = "3.0.3"
-certifi = "2024.07.04"
+werkzeug = "^3.0.3"
+certifi = "^2024.07.04"
 
 
 [tool.poetry.group.dev.dependencies]
